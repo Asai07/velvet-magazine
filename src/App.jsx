@@ -524,7 +524,7 @@ const VisualEssay = ({ setView }) => {
   const [scrollEnd, setScrollEnd] = useState("-80%");
   useEffect(() => {
     const updateScroll = () => {
-      setScrollEnd(window.innerWidth < 768 ? "-87%" : "-80%");
+      setScrollEnd(window.innerWidth < 768 ? "-83%" : "-80%");
     };
     updateScroll();
     window.addEventListener('resize', updateScroll);
