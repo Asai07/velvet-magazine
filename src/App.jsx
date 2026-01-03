@@ -118,10 +118,46 @@ const SHOP_ITEMS = [
 ];
 
 const TOP_ARTICLES = [
-  { id: 1, rank: "01", title: "Why Silence is the Ultimate Luxury", author: "Sarah Jenkins", views: "24k Reads" },
-  { id: 2, rank: "02", title: "The Return of Analog Photography", author: "Marc D.", views: "18k Reads" },
-  { id: 3, rank: "03", title: "Sustainable Cities: A Pipe Dream?", author: "Eco Collective", views: "15k Reads" },
-  { id: 4, rank: "04", title: "Fashion Week: Paris Recap", author: "Velvet Fashion", views: "12k Reads" },
+  {
+    id: 101,
+    rank: "01",
+    title: "Why Silence is the Ultimate Luxury",
+    author: "Sarah Jenkins",
+    views: "24k Reads",
+    category: "Opinion", // Necesario para el visor
+    img: "https://picsum.photos/seed/silence/1200/800", // Necesario para el visor
+    content: "Noise is the new secondhand smoke. In a world where attention is the currency, silence has become the ultimate luxury product. We pay for noise-canceling headphones, we pay for retreats in the mountains, we pay to escape the very connectivity we built. But true silence is not just acoustic; it is mental. It is the ability to sit in a room alone and not reach for a device. This article explores the commodification of quietude in late-stage capitalism."
+  },
+  {
+    id: 102,
+    rank: "02",
+    title: "The Return of Analog Photography",
+    author: "Marc D.",
+    views: "18k Reads",
+    category: "Tech",
+    img: "https://picsum.photos/seed/analog/1200/800",
+    content: "Why are Gen Z photographers buying 30-year-old cameras? It is not just nostalgia. It is a rebellion against the algorithmic perfection of computational photography. When every photo on a phone looks 'perfect' thanks to AI HDR, perfection becomes boring. Film offers grain, unpredictability, and a limited number of shots. It forces intention. We discuss the market surge of Kodak Portra and the revival of darkrooms in major cities."
+  },
+  {
+    id: 103,
+    rank: "03",
+    title: "Sustainable Cities: A Pipe Dream?",
+    author: "Eco Collective",
+    views: "15k Reads",
+    category: "Urbanism",
+    img: "https://picsum.photos/seed/city/1200/800",
+    content: "Greenwashing in architecture is at an all-time high. Putting a few trees on a skyscraper balcony does not make it sustainable if the concrete used to build it emitted tons of CO2. We need to look deeper: at the lifecycle of materials, at the density of our living arrangements, and at the fundamental way we move through space. Is the 15-minute city a conspiracy or a necessity? The answer lies in the data."
+  },
+  {
+    id: 104,
+    rank: "04",
+    title: "Fashion Week: Paris Recap",
+    author: "Velvet Fashion",
+    views: "12k Reads",
+    category: "Fashion",
+    img: "https://picsum.photos/seed/runway/1200/800",
+    content: "This year's Paris Fashion Week was a study in contrasts. While some houses doubled down on logo-mania and spectacle, others retreated into a quiet luxury so subtle it was almost invisible. The standout moment came from the new guard of designers who are deconstructing the very idea of a 'garment'. We break down the top 5 shows that will define the silhouette of the coming year."
+  },
 ];
 
 const REFLECTIONS = [
@@ -915,8 +951,8 @@ const ShopView = () => {
   );
 };
 
-// 5. TOP VIEW
-const TopView = () => {
+// 5. TOP VIEW (Ahora Interactiva)
+const TopView = ({ onStoryClick }) => { // <--- Recibimos la prop aquí
   return (
     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="pt-32 min-h-screen bg-[#F4F4F0]">
       <div className="container mx-auto px-6 md:px-12 max-w-4xl">
@@ -926,7 +962,11 @@ const TopView = () => {
         <div className="flex flex-col gap-4">
           {TOP_ARTICLES.map((article, i) => (
             <Reveal key={article.id} delay={i * 0.1}>
-              <div className="group border border-[#D6D6D2] p-8 md:p-12 hover:bg-white hover:shadow-xl transition-all duration-300 cursor-pointer flex items-center justify-between">
+              <div
+                // Añadimos el evento Click aquí
+                onClick={() => onStoryClick(article)}
+                className="group border border-[#D6D6D2] p-8 md:p-12 hover:bg-white hover:shadow-xl transition-all duration-300 cursor-pointer flex items-center justify-between"
+              >
                 <div className="flex items-center gap-8 md:gap-16">
                   <span className="font-serif text-4xl md:text-6xl text-gray-300 group-hover:text-[#1A1A1A] transition-colors italic">{article.rank}</span>
                   <div>
@@ -943,7 +983,6 @@ const TopView = () => {
     </motion.div>
   );
 };
-
 // FOOTER
 const BrutalistFooter = ({ setView }) => {
   const scrollToTop = () => window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -1063,7 +1102,7 @@ export default function App() {
           {currentView === 'stories' && <StoriesView key="stories" />}
           {currentView === 'visuals' && <VisualsView key="visuals" />}
           {currentView === 'shop' && <ShopView key="shop" />}
-          {currentView === 'top' && <TopView key="top" />}
+          {currentView === 'top' && <TopView key="top" onStoryClick={setActiveStory} />}
         </AnimatePresence>
       </main>
 
