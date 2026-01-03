@@ -130,9 +130,25 @@ const REFLECTIONS = [
   { title: "The Joy of Missing Out", text: "Reclaiming our attention span one notification at a time." }
 ];
 
-/* --- MODAL COMPONENTS (RESTORED) --- */
+/* --- NEW UTILITY COMPONENT: REVEAL --- */
+/* Animates children into view when scrolled to */
+const Reveal = ({ children, width = "100%", delay = 0 }) => {
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 50 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, margin: "-10%" }} // Triggers when element is 10% into view
+      transition={{ duration: 0.8, delay: delay, ease: [0.22, 1, 0.36, 1] }}
+      style={{ width }}
+    >
+      {children}
+    </motion.div>
+  );
+};
 
-// 1. ARTICLE VIEW (Full Page Takeover - Editorial Style)
+/* --- MODAL COMPONENTS --- */
+
+// 1. ARTICLE VIEW (Full Page Takeover)
 const ArticleView = ({ story, onClose }) => {
   if (!story) return null;
 
@@ -158,7 +174,6 @@ const ArticleView = ({ story, onClose }) => {
 
       {/* Content Container */}
       <div className="max-w-7xl mx-auto px-6 md:px-12 pb-24">
-
         {/* Hero Title Area */}
         <motion.div
           initial={{ opacity: 0, y: 50 }}
@@ -207,26 +222,26 @@ const ArticleView = ({ story, onClose }) => {
         </div>
 
         {/* Next Article Teaser */}
-        <div className="mt-32 pt-12 border-t border-[#D6D6D2] flex justify-between items-end">
-          <div>
-            <span className="font-mono text-xs uppercase text-gray-400 mb-2 block">Up Next</span>
-            <h3 className="text-3xl font-serif italic text-gray-300">The Void</h3>
+        <Reveal>
+          <div className="mt-32 pt-12 border-t border-[#D6D6D2] flex justify-between items-end">
+            <div>
+              <span className="font-mono text-xs uppercase text-gray-400 mb-2 block">Up Next</span>
+              <h3 className="text-3xl font-serif italic text-gray-300">The Void</h3>
+            </div>
+            <ArrowRight size={48} className="text-gray-300" strokeWidth={1} />
           </div>
-          <ArrowRight size={48} className="text-gray-300" strokeWidth={1} />
-        </div>
-
+        </Reveal>
       </div>
     </motion.div>
   );
 };
 
-// 2. ARCHIVE PANEL (Side Drawer - Technical Style)
+// 2. ARCHIVE PANEL (Side Drawer)
 const ArchivePanel = ({ item, onClose }) => {
   if (!item) return null;
 
   return (
     <>
-      {/* Backdrop */}
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 0.5 }}
@@ -234,8 +249,6 @@ const ArchivePanel = ({ item, onClose }) => {
         onClick={onClose}
         className="fixed inset-0 z-[60] bg-black backdrop-blur-sm"
       />
-
-      {/* Drawer */}
       <motion.div
         initial={{ x: "100%" }}
         animate={{ x: 0 }}
@@ -309,7 +322,6 @@ const Hero = () => {
 
   return (
     <section className="relative min-h-screen flex items-center justify-center border-b border-[#D6D6D2] overflow-hidden cursor-crosshair">
-
       {/* VIDEO DE FONDO (SOLO MÓVIL) */}
       <div className="absolute inset-0 block md:hidden z-0">
         <div className="absolute inset-0 bg-black/20 z-10" />
@@ -320,7 +332,7 @@ const Hero = () => {
           playsInline
           className="w-full h-full object-cover grayscale contrast-125"
         >
-          <source src="./hero-urban.mp4" type="video/mp4" />
+          <source src="/assets/video/hero-urban.mp4" type="video/mp4" />
         </video>
       </div>
 
@@ -392,19 +404,21 @@ const Marquee = () => {
   );
 };
 
-// 3. FEATURED STORIES (Sticky Layout)
+// 3. FEATURED STORIES (With Reveal)
 const FeaturedStories = ({ onStoryClick }) => {
   return (
     <section className="min-h-[200vh] border-b border-[#D6D6D2]">
       <div className="grid grid-cols-1 md:grid-cols-12 h-full">
         <div className="md:col-span-4 border-r border-[#D6D6D2] p-8 md:p-12 md:sticky md:top-0 md:h-screen flex flex-col justify-between bg-[#F4F4F0] z-10">
-          <div>
-            <h3 className="text-4xl md:text-6xl font-serif mb-6">Latest<br />Stories</h3>
-            <p className="font-sans text-sm md:text-base text-gray-500 max-w-xs leading-relaxed">
-              Curated selection of thoughts, movements, and artistic expressions shaping our current reality.
-            </p>
-          </div>
-          <div className="font-mono text-xs mt-10 md:mt-0">
+          <Reveal>
+            <div>
+              <h3 className="text-4xl md:text-6xl font-serif mb-6">Latest<br />Stories</h3>
+              <p className="font-sans text-sm md:text-base text-gray-500 max-w-xs leading-relaxed">
+                Curated selection of thoughts, movements, and artistic expressions shaping our current reality.
+              </p>
+            </div>
+          </Reveal>
+          <div className="font-mono text-xs mt-10 md:mt-0 opacity-50">
             SCROLL TO EXPLORE ↓
           </div>
         </div>
@@ -412,33 +426,35 @@ const FeaturedStories = ({ onStoryClick }) => {
         <div className="md:col-span-8 bg-[#F4F4F0]">
           {STORIES.map((story, i) => (
             <div key={story.id} className="group border-b border-[#D6D6D2] last:border-b-0 p-8 md:p-20 flex flex-col items-center">
-              <div className="w-full max-w-lg cursor-pointer" onClick={() => onStoryClick(story)}>
-                <div className="overflow-hidden mb-6 relative aspect-[4/5]">
-                  <motion.img
-                    whileHover={{ scale: 1.05 }}
-                    transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
-                    src={story.img}
-                    alt={story.title}
-                    className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-700"
-                  />
-                  <div className="absolute top-4 left-4 bg-[#F4F4F0] px-3 py-1 text-xs uppercase tracking-widest font-sans z-10 text-[#1A1A1A]">
-                    {story.category}
+              <Reveal delay={i % 2 === 0 ? 0 : 0.1}>
+                <div className="w-full max-w-lg cursor-pointer" onClick={() => onStoryClick(story)}>
+                  <div className="overflow-hidden mb-6 relative aspect-[4/5]">
+                    <motion.img
+                      whileHover={{ scale: 1.05 }}
+                      transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
+                      src={story.img}
+                      alt={story.title}
+                      className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-700"
+                    />
+                    <div className="absolute top-4 left-4 bg-[#F4F4F0] px-3 py-1 text-xs uppercase tracking-widest font-sans z-10 text-[#1A1A1A]">
+                      {story.category}
+                    </div>
+                  </div>
+                  <div className="flex justify-between items-start">
+                    <h4 className="text-2xl md:text-4xl font-serif group-hover:italic transition-all duration-300">
+                      {story.title}
+                    </h4>
+                    <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-300 transform translate-y-2 group-hover:translate-y-0 text-[#1A1A1A]">
+                      <ArrowUpRight size={28} />
+                    </div>
+                  </div>
+                  <div className="mt-4 flex gap-4 text-xs font-mono text-gray-400">
+                    <span>0{i + 1}</span>
+                    <span>—</span>
+                    <span>5 MIN READ</span>
                   </div>
                 </div>
-                <div className="flex justify-between items-start">
-                  <h4 className="text-2xl md:text-4xl font-serif group-hover:italic transition-all duration-300">
-                    {story.title}
-                  </h4>
-                  <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-300 transform translate-y-2 group-hover:translate-y-0 text-[#1A1A1A]">
-                    <ArrowUpRight size={28} />
-                  </div>
-                </div>
-                <div className="mt-4 flex gap-4 text-xs font-mono text-gray-400">
-                  <span>0{i + 1}</span>
-                  <span>—</span>
-                  <span>5 MIN READ</span>
-                </div>
-              </div>
+              </Reveal>
             </div>
           ))}
         </div>
@@ -447,49 +463,49 @@ const FeaturedStories = ({ onStoryClick }) => {
   );
 };
 
-// 4. INTERACTIVE INDEX
+// 4. INTERACTIVE INDEX (With Reveal)
 const InteractiveList = ({ onIndexClick }) => {
   const [hoveredIndex, setHoveredIndex] = useState(null);
 
   return (
     <section className="py-24 md:py-40 px-6 md:px-12 border-b border-[#D6D6D2]">
       <div className="max-w-6xl mx-auto">
-        <div className="flex items-end justify-between mb-20">
-          <h3 className="text-xl font-mono uppercase tracking-widest">Index / Archive</h3>
-          <span className="text-xs font-mono text-gray-400">[ A — Z ]</span>
-        </div>
+        <Reveal>
+          <div className="flex items-end justify-between mb-20">
+            <h3 className="text-xl font-mono uppercase tracking-widest">Index / Archive</h3>
+            <span className="text-xs font-mono text-gray-400">[ A — Z ]</span>
+          </div>
+        </Reveal>
 
-        <div
-          className="flex flex-col"
-          onMouseLeave={() => setHoveredIndex(null)}
-        >
+        <div className="flex flex-col" onMouseLeave={() => setHoveredIndex(null)}>
           {INDEX_ITEMS.map((item, i) => (
-            <motion.div
-              key={i}
-              onMouseEnter={() => setHoveredIndex(i)}
-              onClick={() => onIndexClick(item)}
-              className={`
-                relative py-8 border-t border-[#D6D6D2] last:border-b flex justify-between items-center cursor-pointer transition-all duration-500
-                ${hoveredIndex !== null && hoveredIndex !== i ? 'opacity-30 blur-[1px]' : 'opacity-100'}
-              `}
-            >
-              <div className="flex items-baseline gap-8 md:gap-24">
-                <span className="font-mono text-xs text-gray-400 w-8">0{i + 1}</span>
-                <h4 className="text-2xl md:text-5xl font-serif hover:pl-4 transition-all duration-300">
-                  {item.title}
-                </h4>
-              </div>
+            <Reveal key={i} delay={i * 0.05}>
+              <motion.div
+                onMouseEnter={() => setHoveredIndex(i)}
+                onClick={() => onIndexClick(item)}
+                className={`
+                  relative py-8 border-t border-[#D6D6D2] last:border-b flex justify-between items-center cursor-pointer transition-all duration-500
+                  ${hoveredIndex !== null && hoveredIndex !== i ? 'opacity-30 blur-[1px]' : 'opacity-100'}
+                `}
+              >
+                <div className="flex items-baseline gap-8 md:gap-24">
+                  <span className="font-mono text-xs text-gray-400 w-8">0{i + 1}</span>
+                  <h4 className="text-2xl md:text-5xl font-serif hover:pl-4 transition-all duration-300">
+                    {item.title}
+                  </h4>
+                </div>
 
-              <div className="flex items-center gap-8">
-                <span className="hidden md:block font-sans text-xs uppercase tracking-widest">{item.author}</span>
-                <motion.div
-                  initial={{ opacity: 0, x: -10 }}
-                  animate={{ opacity: hoveredIndex === i ? 1 : 0, x: hoveredIndex === i ? 0 : -10 }}
-                >
-                  <ArrowRight size={24} />
-                </motion.div>
-              </div>
-            </motion.div>
+                <div className="flex items-center gap-8">
+                  <span className="hidden md:block font-sans text-xs uppercase tracking-widest">{item.author}</span>
+                  <motion.div
+                    initial={{ opacity: 0, x: -10 }}
+                    animate={{ opacity: hoveredIndex === i ? 1 : 0, x: hoveredIndex === i ? 0 : -10 }}
+                  >
+                    <ArrowRight size={24} />
+                  </motion.div>
+                </div>
+              </motion.div>
+            </Reveal>
           ))}
         </div>
       </div>
@@ -497,26 +513,39 @@ const InteractiveList = ({ onIndexClick }) => {
   );
 };
 
-// 5. VISUAL ESSAY (Horizontal Scroll)
+// 5. VISUAL ESSAY (Fixed Mobile Scroll & Padding)
 const VisualEssay = ({ setView }) => {
   const targetRef = useRef(null);
   const { scrollYProgress } = useScroll({
     target: targetRef,
   });
 
-  const x = useTransform(scrollYProgress, [0, 1], ["0%", "-80%"]);
+  // Responsive logic: Scroll further on mobile (-93%) to show the last card
+  const [scrollEnd, setScrollEnd] = useState("-80%");
+  useEffect(() => {
+    const updateScroll = () => {
+      setScrollEnd(window.innerWidth < 768 ? "-93%" : "-80%");
+    };
+    updateScroll();
+    window.addEventListener('resize', updateScroll);
+    return () => window.removeEventListener('resize', updateScroll);
+  }, []);
+
+  const x = useTransform(scrollYProgress, [0, 1], ["0%", scrollEnd]);
 
   return (
     <section ref={targetRef} className="relative h-[300vh] border-b border-[#D6D6D2]">
       <div className="sticky top-0 flex h-screen items-center overflow-hidden bg-[#F4F4F0]">
 
-        <div className="absolute top-12 left-12 z-20 mix-blend-difference text-[#F4F4F0] pointer-events-none">
+        <div className="absolute top-12 left-6 md:left-12 z-20 mix-blend-difference text-[#F4F4F0] pointer-events-none">
           <h3 className="text-xl font-mono uppercase tracking-widest">Visual Essay</h3>
           <p className="text-sm opacity-60">Swipe Left</p>
         </div>
 
-        <motion.div style={{ x }} className="flex gap-24 px-12 sm:px-32">
-          <div className="w-[60vw] md:w-[30vw] shrink-0 flex flex-col justify-center pr-12">
+        {/* Added right padding to container so the last item isn't flush against viewport edge */}
+        <motion.div style={{ x }} className="flex gap-12 md:gap-24 px-6 md:px-32 pr-32 md:pr-32 items-center">
+
+          <div className="w-[80vw] md:w-[30vw] shrink-0 flex flex-col justify-center md:pr-12">
             <h2 className="text-6xl md:text-8xl font-serif leading-none mb-8">
               Concrete<br /><span className="italic opacity-50">Dreams</span>
             </h2>
@@ -526,7 +555,7 @@ const VisualEssay = ({ setView }) => {
           </div>
 
           {ESSAY_IMAGES.map((img, i) => (
-            <div key={img.id} className="relative w-[85vw] md:w-[60vw] h-[60vh] md:h-[70vh] shrink-0 flex flex-col">
+            <div key={img.id} className="relative w-[85vw] md:w-[60vw] h-[55vh] md:h-[70vh] shrink-0 flex flex-col">
               <div className="relative w-full h-full overflow-hidden mb-4 group">
                 <img src={img.src} alt="Essay" className="w-full h-full object-cover grayscale hover:grayscale-0 transition-all duration-1000 scale-105 hover:scale-100 ease-in-out" />
                 <div className="absolute top-0 right-0 p-4 text-[#F4F4F0] text-9xl font-serif opacity-20 mix-blend-overlay">
@@ -540,15 +569,15 @@ const VisualEssay = ({ setView }) => {
             </div>
           ))}
 
-          {/* INTERACTIVE END CARD - Navigates to Full Visuals Page */}
-          <div className="w-[40vw] md:w-[30vw] shrink-0 flex flex-col justify-center items-start border-l border-[#D6D6D2] pl-12 md:pl-24 opacity-60">
+          {/* Fixed width for mobile readability */}
+          <div className="w-[70vw] md:w-[30vw] shrink-0 flex flex-col justify-center items-start border-l border-[#D6D6D2] pl-12 md:pl-24 opacity-60">
             <span className="font-mono text-xs uppercase tracking-widest mb-6">See Full Gallery</span>
             <h3 className="text-5xl md:text-7xl font-serif mb-6 leading-tight">
               More<br />Visuals
             </h3>
             <button
               onClick={() => setView('visuals')}
-              className="p-4 hover:bg-gray-200 rounded-full transition-colors animate-pulse"
+              className="p-4 hover:bg-gray-200 rounded-full transition-colors animate-pulse border border-[#1A1A1A]"
             >
               <ArrowRight size={48} strokeWidth={1} />
             </button>
@@ -712,9 +741,9 @@ const FullScreenMenu = ({ isOpen, toggleMenu, setView }) => {
   );
 };
 
-/* --- VIEWS --- */
+/* --- VIEWS (Updated with Reveal for Sections) --- */
 
-// 1. HOME VIEW (RESTORED WITH ALL EFFECTS)
+// 1. HOME VIEW
 const HomeView = ({ setView, onStoryClick, onIndexClick }) => {
   return (
     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
@@ -733,63 +762,79 @@ const StoriesView = () => {
   return (
     <motion.div initial={{ opacity: 0, y: 50 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} className="pt-32 min-h-screen">
       <div className="container mx-auto px-6 md:px-12 mb-24">
-        <h1 className="text-6xl md:text-9xl font-serif mb-8 text-[#1A1A1A]">Stories</h1>
-        <p className="font-mono text-xs uppercase tracking-widest max-w-md text-gray-500">
-          A collection of thoughts on life, nature, and the shifting paradigms of our world.
-        </p>
+        <Reveal>
+          <h1 className="text-6xl md:text-9xl font-serif mb-8 text-[#1A1A1A]">Stories</h1>
+          <p className="font-mono text-xs uppercase tracking-widest max-w-md text-gray-500">
+            A collection of thoughts on life, nature, and the shifting paradigms of our world.
+          </p>
+        </Reveal>
       </div>
       <section className="bg-[#EAEAE5] py-24 px-6 md:px-12 border-y border-[#D6D6D2]">
         <div className="grid grid-cols-1 md:grid-cols-12 gap-12">
           <div className="md:col-span-4">
-            <span className="flex items-center gap-2 font-mono text-xs uppercase tracking-widest mb-4"><Star size={12} /> Reflections</span>
-            <h2 className="text-4xl font-serif italic">The Art of Being</h2>
+            <Reveal>
+              <span className="flex items-center gap-2 font-mono text-xs uppercase tracking-widest mb-4"><Star size={12} /> Reflections</span>
+              <h2 className="text-4xl font-serif italic">The Art of Being</h2>
+            </Reveal>
           </div>
           <div className="md:col-span-8 grid gap-12">
             {REFLECTIONS.map((ref, i) => (
-              <div key={i} className="border-b border-gray-400 pb-8 last:border-0">
-                <h3 className="text-2xl font-serif mb-2">{ref.title}</h3>
-                <p className="font-sans text-gray-600 leading-relaxed">{ref.text}</p>
-              </div>
+              <Reveal key={i} delay={i * 0.1}>
+                <div className="border-b border-gray-400 pb-8 last:border-0">
+                  <h3 className="text-2xl font-serif mb-2">{ref.title}</h3>
+                  <p className="font-sans text-gray-600 leading-relaxed">{ref.text}</p>
+                </div>
+              </Reveal>
             ))}
           </div>
         </div>
       </section>
       <section className="py-24 px-6 md:px-12">
-        <div className="flex justify-between items-end mb-12">
-          <span className="flex items-center gap-2 font-mono text-xs uppercase tracking-widest"><Leaf size={12} /> Nature & Life</span>
-        </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div className="relative h-[80vh] group overflow-hidden">
-            <img src="https://picsum.photos/seed/nature1/800/1200" className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-1000" />
-            <div className="absolute bottom-6 left-6 text-white mix-blend-difference">
-              <h3 className="text-4xl font-serif italic">Return to Earth</h3>
-            </div>
+        <Reveal>
+          <div className="flex justify-between items-end mb-12">
+            <span className="flex items-center gap-2 font-mono text-xs uppercase tracking-widest"><Leaf size={12} /> Nature & Life</span>
           </div>
+        </Reveal>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <Reveal>
+            <div className="relative h-[80vh] group overflow-hidden">
+              <img src="https://picsum.photos/seed/nature1/800/1200" className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-1000" />
+              <div className="absolute bottom-6 left-6 text-white mix-blend-difference">
+                <h3 className="text-4xl font-serif italic">Return to Earth</h3>
+              </div>
+            </div>
+          </Reveal>
           <div className="flex flex-col gap-4">
-            <div className="h-[40vh] bg-gray-200 overflow-hidden relative group">
-              <img src="https://picsum.photos/seed/nature2/800/600" className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-1000" />
-              <div className="absolute bottom-4 left-4 text-white mix-blend-difference">
-                <h3 className="text-xl font-serif">Organic Forms</h3>
+            <Reveal delay={0.2}>
+              <div className="h-[40vh] bg-gray-200 overflow-hidden relative group">
+                <img src="https://picsum.photos/seed/nature2/800/600" className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-1000" />
+                <div className="absolute bottom-4 left-4 text-white mix-blend-difference">
+                  <h3 className="text-xl font-serif">Organic Forms</h3>
+                </div>
               </div>
-            </div>
-            <div className="h-[40vh] bg-gray-200 overflow-hidden relative group">
-              <img src="https://picsum.photos/seed/nature3/800/600" className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-1000" />
-              <div className="absolute bottom-4 left-4 text-white mix-blend-difference">
-                <h3 className="text-xl font-serif">Silent Growth</h3>
+            </Reveal>
+            <Reveal delay={0.4}>
+              <div className="h-[40vh] bg-gray-200 overflow-hidden relative group">
+                <img src="https://picsum.photos/seed/nature3/800/600" className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-1000" />
+                <div className="absolute bottom-4 left-4 text-white mix-blend-difference">
+                  <h3 className="text-xl font-serif">Silent Growth</h3>
+                </div>
               </div>
-            </div>
+            </Reveal>
           </div>
         </div>
       </section>
       <section className="py-24 px-6 md:px-12 bg-[#1A1A1A] text-[#F4F4F0]">
-        <div className="border-b border-gray-700 pb-12 mb-12 flex justify-between items-end">
-          <h2 className="text-5xl md:text-7xl font-serif">World Shift</h2>
-          <Globe className="animate-spin-slow" size={48} strokeWidth={1} />
-        </div>
+        <Reveal>
+          <div className="border-b border-gray-700 pb-12 mb-12 flex justify-between items-end">
+            <h2 className="text-5xl md:text-7xl font-serif">World Shift</h2>
+            <Globe className="animate-spin-slow" size={48} strokeWidth={1} />
+          </div>
+        </Reveal>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-12 font-mono text-sm">
-          <p className="opacity-70 leading-relaxed text-justify">The geopolitical landscape is shifting beneath our feet...</p>
-          <p className="opacity-70 leading-relaxed text-justify">Climate migration is no longer a future concept; it is happening now...</p>
-          <p className="opacity-70 leading-relaxed text-justify">Technological singularities are approaching. AI is writing our poetry...</p>
+          <Reveal delay={0.1}><p className="opacity-70 leading-relaxed text-justify">The geopolitical landscape is shifting beneath our feet...</p></Reveal>
+          <Reveal delay={0.2}><p className="opacity-70 leading-relaxed text-justify">Climate migration is no longer a future concept; it is happening now...</p></Reveal>
+          <Reveal delay={0.3}><p className="opacity-70 leading-relaxed text-justify">Technological singularities are approaching. AI is writing our poetry...</p></Reveal>
         </div>
       </section>
     </motion.div>
@@ -801,16 +846,20 @@ const VisualsView = () => {
   return (
     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="pt-32 min-h-screen">
       <div className="px-6 md:px-12 mb-12">
-        <h1 className="text-6xl md:text-9xl font-serif text-center">Visuals</h1>
+        <Reveal>
+          <h1 className="text-6xl md:text-9xl font-serif text-center">Visuals</h1>
+        </Reveal>
       </div>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-0">
         {[...Array(9)].map((_, i) => (
-          <div key={i} className="aspect-square relative group overflow-hidden border border-[#D6D6D2]">
-            <img src={`https://picsum.photos/seed/gallery${i}/800/800`} className="w-full h-full object-cover grayscale group-hover:grayscale-0 group-hover:scale-110 transition-all duration-700 ease-in-out" />
-            <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
-              <span className="font-serif text-3xl italic text-white">Vision {i + 1}</span>
+          <Reveal key={i} delay={i % 3 * 0.1}>
+            <div className="aspect-square relative group overflow-hidden border border-[#D6D6D2]">
+              <img src={`https://picsum.photos/seed/gallery${i}/800/800`} className="w-full h-full object-cover grayscale group-hover:grayscale-0 group-hover:scale-110 transition-all duration-700 ease-in-out" />
+              <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
+                <span className="font-serif text-3xl italic text-white">Vision {i + 1}</span>
+              </div>
             </div>
-          </div>
+          </Reveal>
         ))}
       </div>
     </motion.div>
@@ -822,22 +871,26 @@ const ShopView = () => {
   return (
     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="pt-32 min-h-screen">
       <div className="container mx-auto px-6 md:px-12">
-        <div className="flex justify-between items-end mb-24 border-b border-[#D6D6D2] pb-8">
-          <h1 className="text-5xl md:text-8xl font-serif">Shop</h1>
-          <span className="font-mono text-xs uppercase tracking-widest">Sponsored Curations</span>
-        </div>
+        <Reveal>
+          <div className="flex justify-between items-end mb-24 border-b border-[#D6D6D2] pb-8">
+            <h1 className="text-5xl md:text-8xl font-serif">Shop</h1>
+            <span className="font-mono text-xs uppercase tracking-widest">Sponsored Curations</span>
+          </div>
+        </Reveal>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-24">
-          {SHOP_ITEMS.map((item) => (
-            <div key={item.id} className="group cursor-pointer">
-              <div className="bg-gray-200 aspect-[3/4] mb-6 overflow-hidden relative">
-                <img src={item.img} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
-                <div className="absolute top-4 right-4 bg-white px-3 py-1 font-mono text-xs shadow-lg">{item.sponsor}</div>
+          {SHOP_ITEMS.map((item, i) => (
+            <Reveal key={item.id} delay={i * 0.1}>
+              <div className="group cursor-pointer">
+                <div className="bg-gray-200 aspect-[3/4] mb-6 overflow-hidden relative">
+                  <img src={item.img} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
+                  <div className="absolute top-4 right-4 bg-white px-3 py-1 font-mono text-xs shadow-lg">{item.sponsor}</div>
+                </div>
+                <div className="flex justify-between items-start">
+                  <div><h3 className="font-serif text-xl mb-1">{item.name}</h3><p className="font-mono text-xs text-gray-500">{item.price}</p></div>
+                  <button className="p-2 border border-gray-300 rounded-full hover:bg-black hover:text-white transition-colors"><ShoppingBag size={16} /></button>
+                </div>
               </div>
-              <div className="flex justify-between items-start">
-                <div><h3 className="font-serif text-xl mb-1">{item.name}</h3><p className="font-mono text-xs text-gray-500">{item.price}</p></div>
-                <button className="p-2 border border-gray-300 rounded-full hover:bg-black hover:text-white transition-colors"><ShoppingBag size={16} /></button>
-              </div>
-            </div>
+            </Reveal>
           ))}
         </div>
       </div>
@@ -850,19 +903,23 @@ const TopView = () => {
   return (
     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="pt-32 min-h-screen bg-[#F4F4F0]">
       <div className="container mx-auto px-6 md:px-12 max-w-4xl">
-        <h1 className="text-5xl md:text-8xl font-serif mb-16 text-center">Top Reads</h1>
+        <Reveal>
+          <h1 className="text-5xl md:text-8xl font-serif mb-16 text-center">Top Reads</h1>
+        </Reveal>
         <div className="flex flex-col gap-4">
-          {TOP_ARTICLES.map((article) => (
-            <div key={article.id} className="group border border-[#D6D6D2] p-8 md:p-12 hover:bg-white hover:shadow-xl transition-all duration-300 cursor-pointer flex items-center justify-between">
-              <div className="flex items-center gap-8 md:gap-16">
-                <span className="font-serif text-4xl md:text-6xl text-gray-300 group-hover:text-[#1A1A1A] transition-colors italic">{article.rank}</span>
-                <div>
-                  <h3 className="text-2xl md:text-3xl font-serif mb-2 group-hover:underline decoration-1 underline-offset-4">{article.title}</h3>
-                  <div className="font-mono text-xs text-gray-500 flex gap-4"><span>By {article.author}</span><span>•</span><span>{article.views}</span></div>
+          {TOP_ARTICLES.map((article, i) => (
+            <Reveal key={article.id} delay={i * 0.1}>
+              <div className="group border border-[#D6D6D2] p-8 md:p-12 hover:bg-white hover:shadow-xl transition-all duration-300 cursor-pointer flex items-center justify-between">
+                <div className="flex items-center gap-8 md:gap-16">
+                  <span className="font-serif text-4xl md:text-6xl text-gray-300 group-hover:text-[#1A1A1A] transition-colors italic">{article.rank}</span>
+                  <div>
+                    <h3 className="text-2xl md:text-3xl font-serif mb-2 group-hover:underline decoration-1 underline-offset-4">{article.title}</h3>
+                    <div className="font-mono text-xs text-gray-500 flex gap-4"><span>By {article.author}</span><span>•</span><span>{article.views}</span></div>
+                  </div>
                 </div>
+                <ArrowRight className="opacity-0 group-hover:opacity-100 -translate-x-4 group-hover:translate-x-0 transition-all duration-300" />
               </div>
-              <ArrowRight className="opacity-0 group-hover:opacity-100 -translate-x-4 group-hover:translate-x-0 transition-all duration-300" />
-            </div>
+            </Reveal>
           ))}
         </div>
       </div>
@@ -882,13 +939,15 @@ const BrutalistFooter = ({ setView }) => {
       </div>
       <div className="relative z-10 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 border-b border-gray-800 flex-grow">
         <div className="lg:col-span-8 p-8 md:p-16 md:border-r border-gray-800 flex flex-col justify-center gap-12">
-          <div className="uppercase tracking-widest text-xs text-gray-500 font-mono">( Stay in the loop )</div>
-          <div>
-            <h3 className="text-4xl md:text-6xl font-serif italic mb-8">Join the cult(ure).</h3>
-            <div className="relative border-b border-gray-700">
-              <input type="email" placeholder="Email Address" className="w-full bg-transparent text-2xl py-4 focus:outline-none placeholder:text-gray-700" />
+          <Reveal>
+            <div className="uppercase tracking-widest text-xs text-gray-500 font-mono mb-4">( Stay in the loop )</div>
+            <div>
+              <h3 className="text-4xl md:text-6xl font-serif italic mb-8">Join the cult(ure).</h3>
+              <div className="relative border-b border-gray-700">
+                <input type="email" placeholder="Email Address" className="w-full bg-transparent text-2xl py-4 focus:outline-none placeholder:text-gray-700" />
+              </div>
             </div>
-          </div>
+          </Reveal>
         </div>
         <div className="lg:col-span-4 grid grid-cols-2 grid-rows-2">
           {[{ label: "Stories", id: "stories" }, { label: "Visuals", id: "visuals" }, { label: "Shop", id: "shop" }, { label: "Top", id: "top" }].map((item, i) => (
