@@ -589,7 +589,7 @@ const VisualEssay = ({ setView }) => {
   );
 };
 
-// 6. FOCUS SECTIONS (Elastic Accordion)
+// 6. FOCUS SECTIONS (Fixed Mobile Expansion)
 const FocusSections = ({ onStoryClick }) => {
   const [activePanel, setActivePanel] = useState(0);
 
@@ -600,18 +600,21 @@ const FocusSections = ({ onStoryClick }) => {
         return (
           <motion.div
             key={panel.id}
+            // En móvil usamos onClick, en desktop onMouseEnter también funciona
             onMouseEnter={() => setActivePanel(index)}
             onClick={() => setActivePanel(index)}
             layout
             className={`
-              relative h-full border-b md:border-b-0 md:border-r border-[#D6D6D2] last:border-0 
+              relative border-b md:border-b-0 md:border-r border-[#D6D6D2] last:border-0 
               cursor-pointer overflow-hidden transition-colors duration-500
               ${isActive ? 'bg-[#1A1A1A] text-[#F4F4F0]' : 'bg-[#F4F4F0] text-[#1A1A1A] hover:bg-gray-200'}
             `}
+            // Animación del tamaño del panel (Vertical en móvil, Horizontal en PC)
             initial={false}
             animate={{
               flexGrow: isActive ? 3 : 1,
-              flexBasis: isActive ? "40%" : "20%"
+              // En móvil ajustamos el tamaño base para que no se aplasten demasiado los inactivos
+              flexBasis: isActive ? "40%" : "15%"
             }}
             transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
           >
@@ -629,13 +632,20 @@ const FocusSections = ({ onStoryClick }) => {
               )}
             </AnimatePresence>
 
-            <div className="relative z-10 w-full h-full p-8 flex flex-col justify-between">
+            <div className="relative z-10 w-full h-full p-6 md:p-8 flex flex-col justify-between">
               <div className="flex justify-between items-start">
                 <span className="font-mono text-xs">0{index + 1}</span>
-                {isActive && <ArrowUpRight size={24} />}
+                {/* Flecha visible solo si está activo */}
+                <motion.div
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: isActive ? 1 : 0 }}
+                >
+                  <ArrowUpRight size={24} />
+                </motion.div>
               </div>
 
-              <div className="flex flex-col md:block">
+              <div className="flex flex-col md:block h-full md:h-auto justify-end md:justify-start">
+                {/* Título: Rotado en escritorio si está inactivo, normal en móvil */}
                 <div className={`
                     origin-bottom-left transition-all duration-500
                     ${isActive ? '' : 'md:absolute md:bottom-8 md:left-8 md:rotate-[-90deg] md:translate-x-full'}
@@ -645,23 +655,30 @@ const FocusSections = ({ onStoryClick }) => {
                   </h3>
                 </div>
 
+                {/* CORRECCIÓN PRINCIPAL: Eliminado 'hidden md:block' */}
                 <motion.div
                   initial={{ opacity: 0, height: 0 }}
-                  animate={{ opacity: isActive ? 1 : 0, height: isActive ? 'auto' : 0 }}
-                  className="hidden md:block overflow-hidden"
+                  animate={{
+                    opacity: isActive ? 1 : 0,
+                    height: isActive ? 'auto' : 0,
+                    marginTop: isActive ? 16 : 0 // Añade espacio solo si está activo
+                  }}
+                  className="overflow-hidden"
                 >
-                  <p className="mt-4 font-sans text-sm tracking-widest uppercase opacity-70 mb-4">{panel.desc}</p>
-                  {isActive && (
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        onStoryClick(panel);
-                      }}
-                      className="px-4 py-2 border border-[#F4F4F0] hover:bg-[#F4F4F0] hover:text-[#1A1A1A] transition-colors font-mono text-xs uppercase"
-                    >
-                      Discover
-                    </button>
-                  )}
+                  <p className="font-sans text-sm tracking-widest uppercase opacity-70 mb-4">
+                    {panel.desc}
+                  </p>
+
+                  {/* Botón interactivo */}
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation(); // Evita que el click cierre o re-active el panel
+                      onStoryClick(panel);
+                    }}
+                    className="px-4 py-2 border border-[#F4F4F0] hover:bg-[#F4F4F0] hover:text-[#1A1A1A] transition-colors font-mono text-xs uppercase"
+                  >
+                    Discover
+                  </button>
                 </motion.div>
               </div>
             </div>
